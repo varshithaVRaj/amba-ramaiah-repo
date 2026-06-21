@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles/styles.css">
+    <title>Form Filling Project</title>
+</head>
+<body>
+    <img src="/images/logo.png" alt="Office Logo" class="logo">
+    <a href="/logout" class="logout-link">Logout</a>
+    <div class="container">
+        <!-- Image Section -->
+        <div class="image-container">
+            <div class="button-group">
+                <button id="prevImage" class="nav-button">Previous</button>
+                <button id="nextImage" class="nav-button">Next</button>
+            </div>
+            <div class="image-wrapper">
+                <img id="formImage" src="" alt="Form">
+            </div>
+            <!-- Zoom and Move Controls -->
+            <div class="zoom-controls">
+                <button id="zoomIn">+</button>
+                <button id="zoomOut">-</button>
+                <button id="moveUp">↑</button>
+                <button id="moveDown">↓</button>
+                <button id="moveLeft">←</button>
+                <button id="moveRight">→</button>
+            </div>
+        </div>
+        <!-- Form Section -->
+        <div class="form-container">
+            <h2>Fill the Form</h2>
+            <form id="form" action="/submit" method="POST">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+
+                <label for="address">Address:</label>
+                <textarea id="address" name="address" required></textarea>
+
+                <label for="pin-code">Pin Code:</label>
+                <input type="text" id="pin-code" name="pin-code" required>
+
+                <label for="state">State:</label>
+                <input type="text" id="state" name="state" required>
+
+                <label for="district">District:</label>
+                <input type="text" id="district" name="district" required>
+
+                <label for="taluk">Taluk:</label>
+                <input type="text" id="taluk" name="taluk" required>
+
+                <label for="age">Age:</label>
+                <input type="number" id="age" name="age" required>
+
+                <label for="year-of-birth">Year of Birth:</label>
+                <input type="number" id="year-of-birth" name="year-of-birth" required>
+
+                <label for="sex">Sex:</label>
+                <select id="sex" name="sex" required>
+                    <option value="" disabled selected>Select Sex</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Others">Others</option>
+                </select>
+
+                <label for="religion">Religion:</label>
+                <select id="religion" name="religion" required>
+                    <option value="" disabled selected>Select Religion</option>
+                    <option value="Hindu">Hindu</option>
+                    <option value="Muslim">Muslim</option>
+                    <option value="Christian">Christian</option>
+                    <option value="Sikh">Sikh</option>
+                    <option value="Buddhist">Buddhist</option>
+                    <option value="Jain">Jain</option>
+                </select>
+
+                <label for="marital-status">Marital Status:</label>
+                <select id="marital-status" name="marital-status" required>
+                    <option value="" disabled selected>Select Marital Status</option>
+                    <option value="Single">Single</option>
+                    <option value="Married">Married</option>
+                    <option value="Widowed">Widowed</option>
+                    <option value="Divorced">Divorced</option>
+                    <option value="Separated">Separated</option>
+                </select>
+
+                <label for="nationality">Nationality:</label>
+                <input type="text" id="nationality" name="nationality" value="INDIAN" required>
+
+                <label for="occupation">Occupation:</label>
+                <input type="text" id="occupation" name="occupation">
+
+                <label for="fathers-name">Father's/Husband's Name:</label>
+                <input type="text" id="fathers-name" name="fathers-name">
+
+                <label for="guardians-name">Guardian's Name:</label>
+                <input type="text" id="guardians-name" name="guardians-name">
+
+                <label for="phone-number">Phone Number:</label>
+                <input type="text" id="phone-number" name="phone-number"> <!-- Corrected type from 'value' to 'text' -->
+
+                <label for="insurance-scheme">Insurance Scheme:</label>
+                <input type="text" id="insurance-scheme" name="insurance-scheme">
+
+                <button type="submit">Submit</button>
+                <button type="button" id="refreshForm">Refresh</button>
+            </form>
+            <div id="formMessage" class="message"></div> <!-- Placeholder for success/error message -->
+        </div>
+
+        <!-- Popup Message -->
+        <div id="popupMessage" class="popup" style="display: none;">
+            <p id="popupText">FORM SUBMITTED SUCCESSFULLY</p>
+        </div>
+    </div>
+
+    <script src="/scripts/script.js"></script>
+</body>
+</html>

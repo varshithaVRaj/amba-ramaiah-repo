@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        body { font-family: sans-serif; padding: 2rem; }
+        h1 { text-align: center; margin-bottom: 2rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f2f2f2; font-weight: bold; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .logout-link { position: absolute; top: 1.5rem; right: 2rem; text-decoration: none; background-color: #dc3545; color: white; padding: 0.5rem 1rem; border-radius: 5px; }
+        .logout-link:hover { background-color: #c82333; }
+
+        /* --- STYLES FOR ADMIN SECTIONS AND FORMS --- */
+        .admin-section {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .admin-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .admin-form {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 400px; /* Limit width for better readability */
+        }
+        .admin-form label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .admin-form input, .admin-form select {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            width: 100%; /* Ensure inputs take full width */
+            box-sizing: border-box; /* Include padding/border in width */
+        }
+        .admin-form button {
+            padding: 10px;
+            font-size: 16px;
+            background-color: #28a745; /* Green for create buttons */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-left: 10px; /* Space between buttons */
+        }
+        .admin-form button:hover {
+            background-color: #218838;
+        }
+        /* Style for the secondary button (Reset) */
+        .admin-form button[type="button"] {
+            background-color: #6c757d; /* Grey */
+        }
+        .admin-form button[type="button"]:hover {
+            background-color: #5a6268;
+        }
+        .admin-form .button-group { /* For aligning buttons */
+            display: flex;
+            justify-content: flex-end; /* Push buttons to the right */
+            width: 100%;
+            margin-top: 10px;
+        }
+        .error-message {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 5px;
+            width: 100%; /* Ensure error message takes full width to align */
+            text-align: left; /* Align error text to the left */
+        }
+        /* Style for tables holding lists of users/QCs */
+        .list-table h4 {
+            margin-top: 25px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .list-table td {
+            background-color: white; /* Give table rows a white background */
+        }
+        .list-table tr:nth-child(even) td {
+            background-color: #f9f9f9; /* Slightly darker for even rows */
+        }
+        .list-table tr:first-child th { /* Style for the header row */
+             background-color: #e9ecef; /* Lighter header background */
+        }
+
+    </style>
+</head>
+<body>
+    <h1>Admin Dashboard</h1>
+
+    <!-- User Management Section -->
+    <div class="admin-section">
+        <h3>Manage Users</h3>
+        <form id="createUserForm" class="admin-form">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+
+            <label for="role">Role:</label>
+            <select id="role" name="role" required>
+                
+                <option value="" disabled selected>Select Role</option>
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+            </select>
+
+            <div class="button-group">
+                <button type="submit">Create User</button>
+                <button type="button" id="resetUserForm">Reset</button>
+            </div>
+            <div id="createUserError" class="error-message"></div>
+        </form>
+
+        <div class="list-table"> <!-- Wrapper for table to potentially add styles -->
+            <h4>Existing Users</h4>
+            <table id="users-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Role</th>
+                    </tr>
+                </thead>
+                <tbody id="users-table-body">
+                    <!-- User data will be loaded here by JavaScript -->
+                    <tr><td colspan="3" style="text-align:center;">Loading users...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- QC ID Management Section -->
+    <div class="admin-section">
+        <h3>Manage QC IDs</h3>
+        <form id="createQcIdForm" class="admin-form">
+            <label for="qcId">QC ID:</label>
+            <input type="text" id="qcId" name="qc_id" required>
+
+            <label for="assignedTo">Assign to Username:</label>
+            <input type="text" id="assignedTo" name="assigned_to_username" required>
+
+            <div class="button-group">
+                <button type="submit">Create QC ID</button>
+                <button type="button" id="resetQcIdForm">Reset</button>
+            </div>
+            <div id="createQcIdError" class="error-message"></div>
+        </form>
+
+        <div class="list-table">
+            <h4>Existing QC IDs</h4>
+            <table id="qc-ids-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>QC ID</th>
+                        <th>Assigned To</th>
+                    </tr>
+                </thead>
+                <tbody id="qc-ids-table-body">
+                    <!-- QC ID data will be loaded here by JavaScript -->
+                    <tr><td colspan="3" style="text-align:center;">Loading QC IDs...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Existing Form Submissions Table (Optional, but good to keep) -->
+    <div class="admin-section">
+        <h4>All Form Submissions</h4>
+        <table id="data-table">
+            <thead>
+                <tr id="table-headers">
+                    <!-- Table headers will be populated by JavaScript -->
+                    <td colspan="100%" style="text-align:center;">Loading submissions...</td>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                <!-- Form submission data will be loaded here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Re-using the popup element from index.html if it exists, otherwise creating a basic one -->
+    <div id="popupMessage" class="popup" style="display: none;">
+        <p id="popupText"></p>
+    </div>
+
+    <script>
+        // --- POPUP MESSAGE FUNCTION ---
+        // Helper function to display feedback messages on screen
+        function showPopup(message, color) {
+            const popupMessage = document.getElementById('popupMessage');
+            const popupText = document.getElementById('popupText');
+
+            // If the popup elements aren't found (e.g., if not copied from index.html),
+            // fall back to a simple alert.
+            if (!popupMessage || !popupText) {
+                console.warn("Popup elements not found in DOM, falling back to alert.");
+                alert(message);
+                return;
+            }
+
+            popupText.textContent = message; // Set the message text
+            popupMessage.style.display = 'block'; // Make the popup visible
+            popupMessage.style.backgroundColor = color; // Set background color (e.g., 'green' or 'red')
+            popupMessage.style.color = "white"; // Set text color to white
+
+            // Hide the popup after 3 seconds
+            setTimeout(() => {
+                popupMessage.style.display = 'none';
+            }, 3000);
+        }
+
+        // --- USER MANAGEMENT FUNCTIONS ---
+        const createUserForm = document.getElementById('createUserForm');
+        const createUserError = document.getElementById('createUserError');
+        const usersTableBody = document.getElementById('users-table-body');
+
+        // Function to fetch and display existing users
+        const loadUsers = async () => {
+            try {
+                const response = await fetch('/admin/users'); // Call the server route
+                if (!response.ok) {
+                    // If response is not OK (e.g., 401, 403, 500), throw an error
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const users = await response.json(); // Parse the JSON response
+                usersTableBody.innerHTML = ''; // Clear any existing rows (like "Loading...")
+
+                // If no users are found, display a message
+                if (users.length === 0) {
+                    usersTableBody.innerHTML = '<tr><td colspan="3" style="text-align:center;">No users found.</td></tr>';
+                    return;
+                }
+
+                // Loop through each user and add a row to the table
+                users.forEach(user => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${user.id}</td>
+                        <td>${user.username}</td>
+                        <td>${user.role}</td>
+                    `;
+                    usersTableBody.appendChild(row); // Add the new row to the table body
+                });
+            } catch (error) {
+                console.error('Error loading users:', error);
+                usersTableBody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:red;">Error loading users.</td></tr>';
+                createUserError.textContent = 'Failed to load users.';
+            }
+        };
+
+        // Event listener for the user creation form submission
+        createUserForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); // Prevent the default form submission
+            createUserError.textContent = ''; // Clear previous error messages
+
+            // Get values from the form inputs
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+
+            try {
+                // Send the new user data to the server
+                const response = await fetch('/admin/users/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }, // Specify content type
+                    body: JSON.stringify({ username, password, role }) // Convert data to JSON string
+                });
+
+                const result = await response.json(); // Parse the server's JSON response
+
+                if (response.ok) { // If the server responded with success (2xx status)
+                    showPopup(`User "${username}" created successfully!`, "green"); // Show success popup
+                    createUserForm.reset(); // Clear the form fields
+                    loadUsers(); // Refresh the list of users displayed in the table
+                } else { // If there was an error from the server
+                    createUserError.textContent = result.message || 'Failed to create user.'; // Display the error message
+                }
+            } catch (error) { // Handle network errors or other issues
+                console.error('Error creating user:', error);
+                createUserError.textContent = 'An error occurred while creating the user.';
+            }
+        });
+
+        // Event listener for the "Reset" button for the user form
+        document.getElementById('resetUserForm').addEventListener('click', () => {
+            createUserForm.reset(); // Clear the form fields
+            createUserError.textContent = ''; // Clear any error messages
+        });
+
+
+        // --- QC ID MANAGEMENT FUNCTIONS ---
+        const createQcIdForm = document.getElementById('createQcIdForm');
+        const createQcIdError = document.getElementById('createQcIdError');
+        const qcIdsTableBody = document.getElementById('qc-ids-table-body');
+
+        // Function to fetch and display existing QC IDs
+        const loadQcIds = async () => {
+            try {
+                const response = await fetch('/admin/qc-ids'); // Call the server route
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const qcIds = await response.json(); // Parse the JSON response
+                qcIdsTableBody.innerHTML = ''; // Clear existing rows
+
+                // If no QC IDs are found, display a message
+                if (qcIds.length === 0) {
+                    qcIdsTableBody.innerHTML = '<tr><td colspan="3" style="text-align:center;">No QC IDs found.</td></tr>';
+                    return;
+                }
+
+                // Loop through each QC ID and add a row to the table
+                qcIds.forEach(qc => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${qc.id}</td>
+                        <td>${qc.qc_id}</td>
+                        <td>${qc.assigned_to_username}</td>
+                    `;
+                    qcIdsTableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading QC IDs:', error);
+                qcIdsTableBody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:red;">Error loading QC IDs.</td></tr>';
+                createQcIdError.textContent = 'Failed to load QC IDs.';
+            }
+        };
+
+        // Event listener for the QC ID creation form submission
+        createQcIdForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); // Prevent default form submission
+            createQcIdError.textContent = ''; // Clear previous errors
+
+            // Get values from the form inputs
+            const qc_id = document.getElementById('qcId').value;
+            const assigned_to_username = document.getElementById('assignedTo').value;
+
+            try {
+                // Send new QC ID data to the server
+                const response = await fetch('/admin/qc-ids/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ qc_id, assigned_to_username })
+                });
+
+                const result = await response.json(); // Parse server's response
+
+                if (response.ok) { // If server responded with success
+                    showPopup(`QC ID "${qc_id}" created successfully!`, "green"); // Show success popup
+                    createQcIdForm.reset(); // Clear the form
+                    loadQcIds(); // Refresh the QC ID list
+                } else { // If server returned an error
+                    createQcIdError.textContent = result.message || 'Failed to create QC ID.'; // Display error
+                }
+            } catch (error) { // Handle network errors
+                console.error('Error creating QC ID:', error);
+                createQcIdError.textContent = 'An error occurred while creating the QC ID.';
+            }
+        });
+
+        // Event listener for the "Reset" button for the QC ID form
+        document.getElementById('resetQcIdForm').addEventListener('click', () => {
+            createQcIdForm.reset(); // Clear the form fields
+            createQcIdError.textContent = ''; // Clear any error messages
+        });
+
+
+        // --- INITIAL DATA LOADING ---
+        // This section ensures all tables are populated when the admin page loads.
+
+        // Fetch existing form submissions (your original functionality)
+        async function fetchAllSubmissions() {
+            const response = await fetch('/admin/data'); // Fetch from the /admin/data route
+
+            // Handle unauthorized access (e.g., session expired)
+            if (response.status === 401 || response.status === 403) {
+                window.location.href = '/login.html'; // Redirect to login
+                return;
+            }
+
+            const data = await response.json(); // Parse JSON response
+            const headerRow = document.getElementById('table-headers');
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = ''; // Clear existing rows (like "Loading...")
+            headerRow.innerHTML = ''; // Clear existing headers
+
+            // If no submissions are found, display a message
+            if (!data || data.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="100%" style="text-align:center;">No form submissions found.</td></tr>';
+                return;
+            }
+
+            // Dynamically create table headers from the keys of the first data object
+            const headers = Object.keys(data[0]);
+            headerRow.innerHTML = headers.map(header => `<th>${header}</th>`).join(''); // Create TH elements
+
+            // Populate the table body with submission data
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                // Create TD elements for each header/value pair
+                tr.innerHTML = headers.map(header => `<td>${row[header]}</td>`).join('');
+                tableBody.appendChild(tr);
+            });
+        }
+
+        // --- CALL INITIAL LOAD FUNCTIONS ---
+        // Execute these when the page first loads to populate all tables.
+        loadUsers();
+        loadQcIds();
+        fetchAllSubmissions();
+    </script>
+</body>
+</html>
